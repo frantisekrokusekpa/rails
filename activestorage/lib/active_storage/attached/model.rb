@@ -7,7 +7,7 @@ module ActiveStorage
   module Attached::Model
     extend ActiveSupport::Concern
 
-    ACTIVE_STORAGE_KEY_PATH_SEPARATOR = "/"
+    KEY_PATH_SEPARATOR = "/"
 
     class_methods do
       # Specifies the relation between a single attachment and the model.
@@ -160,12 +160,12 @@ module ActiveStorage
                 if Array(attachables).none?
                   ActiveStorage::Attached::Changes::DeleteMany.new("#{name}", self)
                 else
-                  ActiveStorage::Attached::Changes::CreateMany.new("#{name}", self, attachables, key)
+                  ActiveStorage::Attached::Changes::CreateMany.new("#{name}", self, attachables, "#{key}")
                 end
             else
               if Array(attachables).any?
                 attachment_changes["#{name}"] =
-                  ActiveStorage::Attached::Changes::CreateMany.new("#{name}", self, "#{name}".blobs + attachables, key)
+                  ActiveStorage::Attached::Changes::CreateMany.new("#{name}", self, #{name}.blobs + attachables, "#{key}")
               end
             end
           end
@@ -212,7 +212,7 @@ module ActiveStorage
         def validate_key_interpolations(association_name, key)
           return if key.blank?
 
-          key.split(ACTIVE_STORAGE_KEY_PATH_SEPARATOR).map do |key_part|
+          key.split(KEY_PATH_SEPARATOR).map do |key_part|
             key_part.scan(/:(\w*)/) do
               unless ActiveStorage.key_interpolation_procs.keys.include?($1.to_sym)
                 raise ArgumentError, "Cannot configure #{key_part} in interpolation key :#{key} for #{name}##{association_name}"

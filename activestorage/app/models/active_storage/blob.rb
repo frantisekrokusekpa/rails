@@ -37,7 +37,7 @@ class ActiveStorage::Blob < ActiveStorage::Record
   self.table_name = "active_storage_blobs"
 
   MINIMUM_TOKEN_LENGTH = 28
-  ACTIVE_STORAGE_KEY_PATH_SEPARATOR = '/'
+  KEY_PATH_SEPARATOR = "/"
 
   has_secure_token :key, length: MINIMUM_TOKEN_LENGTH
   store :metadata, accessors: [ :analyzed, :identified ], coder: ActiveRecord::Coders::JSON
@@ -149,17 +149,17 @@ class ActiveStorage::Blob < ActiveStorage::Record
       [
         interpolate(key: key, record: record, attachable: attachable),
         generate_unique_secure_token(length: length)
-      ].compact.join(ACTIVE_STORAGE_KEY_PATH_SEPARATOR)
+      ].compact.join(KEY_PATH_SEPARATOR)
     end
 
     # Interpolates configured variables into keys,
     # with procs coming from key_interpolation_procs configuration hash
     def interpolate(key:, record:, attachable:)
-      key.split(ACTIVE_STORAGE_KEY_PATH_SEPARATOR).map do |key_part|
+      key.split(KEY_PATH_SEPARATOR).map do |key_part|
         key_part.gsub(/:(\w*)/) do
           ActiveStorage.key_interpolation_procs[$1.to_sym].call(record, attachable)
         end
-      end.join(ACTIVE_STORAGE_KEY_PATH_SEPARATOR)
+      end.join(KEY_PATH_SEPARATOR)
     end
   end
 
@@ -174,7 +174,7 @@ class ActiveStorage::Blob < ActiveStorage::Record
   # Always refer to blobs using the signed_id or a verified form of the key.
   def key
     # We can't wait until the record is first saved to have a key for it
-    self[:key] ||= self.class.generate_unique_interpolated_secure_key(length: MINIMUM_TOKEN_LENGTH)
+    self[:key] ||= self.class.generate_unique_secure_token(length: MINIMUM_TOKEN_LENGTH)
   end
 
   # Returns an ActiveStorage::Filename instance of the filename that can be

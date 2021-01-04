@@ -1013,8 +1013,6 @@ text/javascript image/svg+xml application/postscript application/x-shockwave-fla
   }
   ```
 
-  The default is `{}`.
-
 * `config.active_storage.replace_on_assign_to_many` determines whether assigning to a collection of attachments declared with `has_many_attached` replaces any existing attachments or appends to them. The default is `true`.
 
 * `config.active_storage.track_variants` determines whether variants are recorded in the database. The default is `true`.

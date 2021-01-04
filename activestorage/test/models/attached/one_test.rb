@@ -45,9 +45,11 @@ class ActiveStorage::OneAttachedTest < ActiveSupport::TestCase
   test "attaching a new blob from a Hash to an existing record passes record" do
     hash = { io: StringIO.new("STUFF"), filename: "town.jpg", content_type: "image/jpg" }
     blob = ActiveStorage::Blob.build_after_unfurling(**hash)
-    arguments = [hash.merge(record: @user, service_name: nil)]
-    assert_called_with(ActiveStorage::Blob, :build_after_unfurling, arguments, returns: blob) do
-      @user.avatar.attach hash
+    arguments = [hash.merge(record: @user, service_name: nil, key: blob.key)]
+    assert_called(ActiveStorage::Blob, :generate_unique_secure_token, returns: blob.key) do
+      assert_called_with(ActiveStorage::Blob, :build_after_unfurling, arguments, returns: blob) do
+        @user.avatar.attach hash
+      end
     end
   end
 
@@ -63,8 +65,11 @@ class ActiveStorage::OneAttachedTest < ActiveSupport::TestCase
     end
     arguments = { io: upload.open, filename: upload.original_filename, content_type: upload.content_type, record: @user, service_name: nil }
     blob = ActiveStorage::Blob.build_after_unfurling(**arguments)
-    assert_called_with(ActiveStorage::Blob, :build_after_unfurling, [arguments], returns: blob) do
-      @user.avatar.attach upload
+    arguments[:key] = blob.key
+    assert_called(ActiveStorage::Blob, :generate_unique_secure_token, returns: blob.key) do
+      assert_called_with(ActiveStorage::Blob, :build_after_unfurling, [arguments], returns: blob) do
+        @user.avatar.attach upload
+      end
     end
   end
 
