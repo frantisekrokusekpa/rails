@@ -215,7 +215,7 @@ module ActiveStorage
           key.split(KEY_PATH_SEPARATOR).map do |key_part|
             key_part.scan(/:(\w*)/) do
               unless ActiveStorage.key_interpolation_procs.keys.include?($1.to_sym)
-                raise ArgumentError, "Cannot configure #{key_part} in interpolation key :#{key} for #{name}##{association_name}"
+                raise ArgumentError, "Cannot configure #{key_part} in interpolation key '#{key}' for #{name}##{association_name}"
               end
             end
           end
